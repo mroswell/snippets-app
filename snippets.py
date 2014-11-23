@@ -1,4 +1,4 @@
-import logging
+import logging, argparse,sys
 
 # Set the log output file, and the log level
 logging.basicConfig(filename="snippets.log", level=logging.DEBUG)
@@ -26,4 +26,22 @@ def delete(name):
     """
     Delete a snippet with an associated name.
 
-    """logging.error("FIXME: Unimplemented - delete({!r}, {!r}".format(name,snippet))
+    """
+    logging.error("FIXME: Unimplemented - delete({!r}, {!r}".format(name,snippet))
+
+def patch(name, snippet):
+    """
+    Update a snippet with an associated name
+    Returns the name and the snippet
+    """
+    logging.error("FIXME: Unimplemented - patch({!r},{!r}".format(name, snippet))
+    return name, snippet
+
+def main():
+    """Main function"""
+    logging.info("Constructing parser")
+    parser = argparse.ArgumentParser(description="Store and retrieve snippets of text")
+    arguments = parser.parse_args(sys.argv[1:])
+
+if __name__ == "__main__":
+    main()
