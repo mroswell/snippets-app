@@ -22,6 +22,7 @@ def put(name, snippet):
     logging.debug("Snippet stored successfully.")
     return name, snippet
 
+
 def get(name):
     """Retrieve the snippet with a given name.
 
@@ -29,8 +30,14 @@ def get(name):
 
     Returns the snippet.
     """
-    logging.error("FIXME: Unimplemented - get({!r})".format(name))
-    return ""
+    logging.info("FIXME: Getting snippet - get({!r})".format(name))
+    cursor = connection.cursor()
+    command = "select keyword, message from snippets where keyword={!r};".format(name)
+    cursor.execute(command)
+    retrieved_snippet = cursor.fetchone()
+    connection.commit()
+    logging.debug("Snippet retrieved")
+    return retrieved_snippet[1]
 
 def delete(name):
     """
