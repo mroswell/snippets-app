@@ -15,10 +15,21 @@ def put(name, snippet):
     Returns the name and the snippet
     """
     logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
-    cursor = connection.cursor()
+#    cursor = connection.cursor()
     command = "insert into snippets values ({!r}, {!r})".format(name, snippet)
-    cursor.execute(command)
-    connection.commit()
+#    command = "update snippets set message={!r} where keyword={!r}".format(snippet, name)
+#    cursor.execute(command)
+    # try:
+    #     command = "insert into snippets values ({!r}, {!r})".format(name, snippet)
+    #     cursor.execute(command)
+    # except psycopg2.IntegrityError as e:
+    #     connection.rollback()
+    #     command = "update snippets set message={!r} where keyword={!r}".format(snippet, name)
+    #     cursor.execute(command)
+#    connection.commit()
+    with connection, connection.cursor() as cursor:
+        cursor.execute(command)
+
     logging.debug("Snippet stored successfully.")
     return name, snippet
 
@@ -30,14 +41,23 @@ def get(name):
 
     Returns the snippet.
     """
-    logging.info("FIXME: Getting snippet - get({!r})".format(name))
-    cursor = connection.cursor()
+    logging.info("Getting snippet - get({!r})".format(name))
     command = "select keyword, message from snippets where keyword={!r};".format(name)
-    cursor.execute(command)
-    retrieved_snippet = cursor.fetchone()
-    connection.commit()
+#    cursor = connection.cursor()
+#    cursor.execute(command)
+#    retrieved_snippet = cursor.fetchone()
+#    connection.commit()
+
+    with connection, connection.cursor() as cursor:
+        cursor.execute(command)
+        row = cursor.fetchone()
+
     logging.debug("Snippet retrieved")
-    return retrieved_snippet[1]
+ #   if retrieved_snippet == None:
+    if not row:
+        return logging.error("no snippet")
+    else:
+        return row[1]
 
 def delete(name):
     """
