@@ -59,6 +59,28 @@ def get(name):
     else:
         return row[1]
 
+def catalog():
+    """retrieve all the snippet names"""
+    command = "select keyword from snippets order by keyword;"
+    with connection, connection.cursor() as cursor:
+        cursor.execute(command)
+        rows = cursor.fetchall()
+    if not rows:
+        return logging.error("no snippets")
+    else:
+        return rows
+
+def search(term):
+    """search snippets by search term"""
+    command = "select keyword, message from snippets where message like '%{}%' order by keyword;".format(term)
+    with connection, connection.cursor() as cursor:
+        cursor.execute(command)
+        rows = cursor.fetchall()
+    if not rows:
+        return logging.error("no snippets match {}".format(term))
+    else:
+        return rows
+
 def delete(name):
     """
     Delete a snippet with an associated name.
@@ -92,6 +114,15 @@ def main():
     put_parser = subparsers.add_parser("get", help="Store a snippet")
     put_parser.add_argument("name", help="The name of the snippet")
 
+    # subparser for the catalog
+    logging.debug("constructiong catalog subparser")
+    put_parser = subparsers.add_parser("catalog", help="list of all snippet names")
+
+    # subparser for search
+    logging.debug("constructiong search subparser")
+    put_parser = subparsers.add_parser("search", help="snippet search")
+    put_parser.add_argument("term", help="Search term")
+
     arguments = parser.parse_args(sys.argv[1:])
    # Convert parsed arguments from Namespace to dictionary
     arguments = vars(arguments)
@@ -103,7 +134,12 @@ def main():
     elif command == "get":
         snippet = get(**arguments)
         print("Retrieved snippet: {!r}".format(snippet))
-
-
+    elif command == "catalog":
+        for kw in catalog():
+            for item in kw:
+                print item
+    elif command == "search":
+        for sn in search(**arguments):
+            print "{}: {}".format(sn[0], sn[1])
 if __name__ == "__main__":
     main()
