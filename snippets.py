@@ -8,7 +8,7 @@ logging.debug("Connecting to PostgreSQL")
 connection = psycopg2.connect("dbname='snippets' host='localhost'")
 logging.debug("Database connection established.")
 
-def put(name, snippet, hidden='f'):
+def put(name, snippet, hide='f', show='t'):
     """
     Store a snippet with an associated name.
 
@@ -16,7 +16,7 @@ def put(name, snippet, hidden='f'):
     """
     logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
 #    cursor = connection.cursor()
-    command = "insert into snippets values ({!r}, {!r}, {!r})".format(name, snippet, hidden)
+    command = "insert into snippets values ({!r}, {!r}, {!r})".format(name, snippet, hide)
 #    command_hide = "update snippets set hidden = 't' where keyword = {!r}".format(name)
 #    command_show = "update snippets set hidden = 'f' where keyword = {!r}".format(name)
 #    command = "update snippets set message={!r} where keyword={!r}".format(snippet, name)
@@ -111,8 +111,8 @@ def main():
     put_parser = subparsers.add_parser("put", help="Store a snippet")
     put_parser.add_argument("name", help="The name of the snippet")
     put_parser.add_argument("snippet", help="The snippet text")
-    put_parser.add_argument("--hide", help="set the hidden flag")
-    put_parser.add_argument("--show", help="reset the hidden flag to false")
+    put_parser.add_argument("--hide", help="set the hidden flag", action="store_true")
+    put_parser.add_argument("--show", help="reset the hidden flag to false", action="store_true")
 
  #   parser.add_argument("--hide", help="set the hidden flag")
 
