@@ -8,7 +8,7 @@ logging.debug("Connecting to PostgreSQL")
 connection = psycopg2.connect("dbname='snippets' host='localhost'")
 logging.debug("Database connection established.")
 
-def put(name, snippet):
+def put(name, snippet, hidden='f'):
     """
     Store a snippet with an associated name.
 
@@ -16,7 +16,9 @@ def put(name, snippet):
     """
     logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
 #    cursor = connection.cursor()
-    command = "insert into snippets values ({!r}, {!r})".format(name, snippet)
+    command = "insert into snippets values ({!r}, {!r}, {!r})".format(name, snippet, hidden)
+#    command_hide = "update snippets set hidden = 't' where keyword = {!r}".format(name)
+#    command_show = "update snippets set hidden = 'f' where keyword = {!r}".format(name)
 #    command = "update snippets set message={!r} where keyword={!r}".format(snippet, name)
 #    cursor.execute(command)
     # try:
@@ -30,6 +32,7 @@ def put(name, snippet):
     with connection, connection.cursor() as cursor:
         cursor.execute(command)
 
+
     logging.debug("Snippet stored successfully.")
     return name, snippet
 
@@ -42,7 +45,7 @@ def get(name):
     Returns the snippet.
     """
     logging.info("Getting snippet - get({!r})".format(name))
-    command = "select keyword, message from snippets where keyword={!r};".format(name)
+    command = "select keyword, message from snippets where keyword={!r} AND where not hidden;".format(name)
 #    cursor = connection.cursor()
 #    cursor.execute(command)
 #    retrieved_snippet = cursor.fetchone()
@@ -61,7 +64,7 @@ def get(name):
 
 def catalog():
     """retrieve all the snippet names"""
-    command = "select keyword from snippets order by keyword;"
+    command = "select keyword from snippets order by keyword where not hidden;"
     with connection, connection.cursor() as cursor:
         cursor.execute(command)
         rows = cursor.fetchall()
@@ -108,6 +111,10 @@ def main():
     put_parser = subparsers.add_parser("put", help="Store a snippet")
     put_parser.add_argument("name", help="The name of the snippet")
     put_parser.add_argument("snippet", help="The snippet text")
+    put_parser.add_argument("--hide", help="set the hidden flag")
+    put_parser.add_argument("--show", help="reset the hidden flag to false")
+
+ #   parser.add_argument("--hide", help="set the hidden flag")
 
     # Subparser for the get command
     logging.debug("Constructing get subparser")
@@ -141,5 +148,6 @@ def main():
     elif command == "search":
         for sn in search(**arguments):
             print "{}: {}".format(sn[0], sn[1])
+
 if __name__ == "__main__":
     main()
