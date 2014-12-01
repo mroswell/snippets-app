@@ -125,17 +125,17 @@ def main():
 
     # Subparser for the get command
     logging.debug("Constructing get subparser")
-    put_parser = subparsers.add_parser("get", help="Store a snippet")
-    put_parser.add_argument("name", help="The name of the snippet")
+    get_parser = subparsers.add_parser("get", help="Store a snippet")
+    get_parser.add_argument("name", help="The name of the snippet")
 
     # subparser for the catalog
     logging.debug("constructing catalog subparser")
-    put_parser = subparsers.add_parser("catalog", help="list of all snippet names")
+    catalog_parser = subparsers.add_parser("catalog", help="list of all snippet names")
 
     # subparser for search
     logging.debug("constructiong search subparser")
-    put_parser = subparsers.add_parser("search", help="snippet search")
-    put_parser.add_argument("term", help="Search term")
+    search_parser = subparsers.add_parser("search", help="snippet search")
+    search_parser.add_argument("term", help="Search term")
 
     arguments = parser.parse_args(sys.argv[1:])
    # Convert parsed arguments from Namespace to dictionary
