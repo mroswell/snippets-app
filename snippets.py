@@ -8,7 +8,7 @@ logging.debug("Connecting to PostgreSQL")
 connection = psycopg2.connect("dbname='snippets' host='localhost'")
 logging.debug("Database connection established.")
 
-def put(name, snippet, hide='f', show='t'):
+def put(name, snippet, hide='f', show='f'):
     """
     Store a snippet with an associated name.
 
@@ -16,7 +16,9 @@ def put(name, snippet, hide='f', show='t'):
     """
     logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
 #    cursor = connection.cursor()
-    command_insert = "insert into snippets values ({!r}, {!r}, {!r})".format(name, snippet, hide)
+    # command_insert = "insert into snippets values ({!r}, {!r}, {!r})".format(name, snippet, hide)
+    command_insert = "insert into snippets values (%s, %s, %s)",(name, snippet, hide)
+
 #    command_hide = "update snippets set hidden = 't' where keyword = {!r}".format(name)
 #    command_show = "update snippets set hidden = 'f' where keyword = {!r}".format(name)
     command_update = "update snippets set message={!r} where keyword={!r}".format(snippet, name)
@@ -31,7 +33,9 @@ def put(name, snippet, hide='f', show='t'):
 #    connection.commit()
     try:
         with connection, connection.cursor() as cursor:
-            cursor.execute(command_insert)
+#            cursor.execute(command_insert)
+            cursor.execute("insert into snippets values (%s, %s, %s)", (name, snippet, hide))
+            print name, snippet, hide
     except psycopg2.IntegrityError as e:
         with connection, connection.cursor() as cursor:
             cursor.execute(command_update)
@@ -55,7 +59,7 @@ def get(name):
 #    connection.commit()
 
     with connection, connection.cursor() as cursor:
-        cursor.execute(command)
+        cursor.execute("select message from snippets where keyword=%s", (name,))
         row = cursor.fetchone()
 
     logging.debug("Snippet retrieved")
@@ -63,7 +67,7 @@ def get(name):
     if not row:
         return logging.error("no snippet")
     else:
-        return row[1]
+        return row[0]
 
 def catalog():
     """retrieve all the snippet names"""
@@ -125,7 +129,7 @@ def main():
     put_parser.add_argument("name", help="The name of the snippet")
 
     # subparser for the catalog
-    logging.debug("constructiong catalog subparser")
+    logging.debug("constructing catalog subparser")
     put_parser = subparsers.add_parser("catalog", help="list of all snippet names")
 
     # subparser for search
